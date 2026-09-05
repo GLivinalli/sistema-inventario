@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Inventário e Almoxarifado</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div id="global-tooltip"></div>
+
+<div class="main-layout">
+    <div class="container">
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="app.switchTab(event, 'aba-registro')">Registro & Histórico</button>
+            <button class="tab-btn" onclick="app.switchTab(event, 'aba-estoque')">Estoque Atual</button>
+            <button class="tab-btn" onclick="app.switchTab(event, 'aba-relatorios')">Consumo por Setor</button>
+        </div>
+
+        <!-- ABA 1: REGISTRO -->
+        <div id="aba-registro" class="tab-content active">
+            <h2>📦 Registrar Movimentação</h2>
+            <form id="inventoryForm">
+                <div class="grid-form">
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" required onchange="app.toggleFields()">
+                            <option value="Entrada">Entrada (Compra/Devolução)</option>
+                            <option value="Saída">Saída (Retirada)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="data">Data</label>
+                        <input type="date" id="data" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item">Item</label>
+                        <input type="text" id="item" placeholder="Ex: Chave de Fenda" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fabricante">Fabricante</label>
+                        <input type="text" id="fabricante" placeholder="Ex: Tramontina" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade</label>
+                        <input type="number" id="quantidade" min="1" step="1" required>
+                    </div>
+                    <div class="form-group campo-entrada-valor">
+                        <label for="valor_unitario">Valor Un. (R$)</label>
+                        <input type="number" id="valor_unitario" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="responsavel">Cadastrador / Almoxarife</label>
+                        <input type="text" id="responsavel" required>
+                    </div>
+                    <div class="form-group campo-saida hidden">
+                        <label for="setor">Setor Destino</label>
+                        <input type="text" id="setor">
+                    </div>
+                    <div class="form-group campo-saida hidden">
+                        <label for="funcionario_destino">Funcionário</label>
+                        <input type="text" id="funcionario_destino">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn-submit">Salvar Movimentação</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+            <h2>🕒 Histórico</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th><th>Data</th><th>Item</th><th>Fabricante</th><th>Qtd</th>
+                            <th>Valor Un.</th><th>Var. (%)</th><th>Total</th><th>Setor</th><th>Retirado Por</th><th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historicoBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 2: ESTOQUE -->
+        <div id="aba-estoque" class="tab-content">
+            <h2>📊 Estoque Atual</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th><th>Fabricante</th><th>Qtd</th>
+                            <th>Último Valor</th><th>Var. (%)</th><th>Dias em Estoque</th><th>Total Estoque ℹ️</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estoqueBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 3: RELATÓRIOS -->
+        <div id="aba-relatorios" class="tab-content">
+            <h2>🔍 Consultar Consumo</h2>
+            <div class="filter-box">
+                <div class="grid-form">
+                    <div class="form-group">
+                        <label>Mês</label>
+                        <input type="month" id="filterMes">
+                    </div>
+                    <div class="form-group">
+                        <label>Setor</label>
+                        <input type="text" id="filterSetor" placeholder="Filtrar setor...">
+                    </div>
+                    <div class="form-group">
+                        <label>Funcionário</label>
+                        <input type="text" id="filterFuncionario" placeholder="Filtrar funcionário...">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="button" class="btn-filter" onclick="app.loadRelatorio()">Filtrar</button>
+                        <button type="button" class="btn-clear" onclick="app.clearFilter()">Limpar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th><th>Setor</th><th>Funcionário</th><th>Item</th><th>Fabricante</th><th>Total Retirado</th><th>Valor Total</th><th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="relatorioBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL DE BALANÇO (colapsável) -->
+    <div id="resumoCardBox" class="resumo-card-box">
+        <button type="button" class="resumo-toggle" onclick="app.toggleResumo()">
+            <span>💰 Balanço</span>
+            <span class="resumo-chevron" id="resumoChevron">▾</span>
+        </button>
+        <div class="resumo-content">
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label>Mês:</label>
+                <input type="month" id="filtroMesResumo" onchange="app.loadResumo()">
+                <button type="button" class="btn-clear" onclick="app.clearMes()" style="margin-top: 6px; font-size:11px;">Geral</button>
+            </div>
+            <div class="kpi-card kpi-entrada">
+                <div class="kpi-title">Entradas</div>
+                <div class="kpi-value" id="resumoEntradasVal">R$ 0,00</div>
+                <div class="kpi-sub" id="resumoEntradasQtd">0 itens</div>
+            </div>
+            <div class="kpi-card kpi-saida">
+                <div class="kpi-title">Saídas</div>
+                <div class="kpi-value" id="resumoSaidasVal">R$ 0,00</div>
+                <div class="kpi-sub" id="resumoSaidasQtd">0 itens</div>
+            </div>
+            <div class="kpi-card kpi-saldo">
+                <div class="kpi-title">Saldo</div>
+                <div class="kpi-value" id="resumoSaldoVal">R$ 0,00</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
