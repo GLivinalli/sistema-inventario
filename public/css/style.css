@@ -1,0 +1,224 @@
+:root {
+    --primary: #2c3e50;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --info: #2980b9;
+    --bg-color: #f4f7f6;
+    --text-color: #333;
+    --border-color: #cbd5e0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 10px;
+}
+
+.main-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.container {
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Mobile-first: painel de balanço fica embutido no fluxo, abaixo do conteúdo.
+   Em telas largas (>= 1451px) ele "flutua" fixo na lateral direita. */
+.resumo-card-box {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: none;
+    overflow: hidden;
+}
+.resumo-card-box.is-visible { display: block; }
+
+.resumo-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    min-height: 44px;
+}
+.resumo-toggle:hover { background-color: #34495e; }
+.resumo-chevron { transition: transform 0.2s; font-size: 12px; }
+.resumo-card-box.collapsed .resumo-chevron { transform: rotate(-90deg); }
+
+.resumo-content { padding: 15px; }
+.resumo-card-box.collapsed .resumo-content { display: none; }
+
+@media (min-width: 1451px) {
+    .resumo-card-box.is-visible {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        width: 280px;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        max-height: calc(100vh - 30px);
+        overflow-y: auto;
+    }
+}
+
+/* Grid de 3 colunas fixas: as três abas ficam sempre visíveis ao mesmo
+   tempo, sem precisar rolar horizontalmente, mesmo em telas estreitas. */
+.tab-menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: var(--primary);
+}
+.tab-btn {
+    padding: 10px 4px;
+    cursor: pointer;
+    text-align: center;
+    color: white;
+    background-color: var(--primary);
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 12px;
+    line-height: 1.25;
+    font-weight: bold;
+    transition: 0.2s;
+    min-height: 44px; /* alvo de toque confortável no celular */
+    white-space: normal; /* permite quebrar em 2 linhas em telas bem estreitas */
+    word-break: break-word;
+}
+@media (min-width: 480px) {
+    .tab-btn { font-size: 13px; padding: 12px 8px; }
+}
+@media (min-width: 640px) {
+    .tab-btn { font-size: 14px; padding: 14px 12px; white-space: nowrap; }
+}
+.tab-btn:hover { background-color: #34495e; }
+.tab-btn:focus-visible { outline: 3px solid #7fb3ff; outline-offset: -3px; }
+.tab-btn.active { background-color: #ecf0f1; color: var(--primary); border-bottom: 3px solid var(--success); }
+
+.tab-content { display: none; padding: 16px; width: 100%; }
+.tab-content.active { display: block; }
+
+@media (min-width: 640px) {
+    .tab-content { padding: 25px; }
+}
+
+h2, h3 { color: var(--primary); text-align: center; font-size: 1.15rem; margin-top: 0; }
+@media (min-width: 640px) { h2, h3 { font-size: 1.3rem; } }
+
+.grid-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+@media (min-width: 560px) {
+    .grid-form { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}
+
+.filter-box { background-color: #edf2f7; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group.half-width { grid-column: 1 / -1; }
+@media (min-width: 560px) { .form-group.half-width { grid-column: span 1; max-width: 350px; } }
+
+label { margin-bottom: 5px; font-weight: bold; font-size: 13px; }
+
+input, select, button {
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px; /* >=16px evita zoom automático no iOS ao focar */
+    width: 100%;
+    min-height: 44px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 3px solid #7fb3ff;
+    outline-offset: 1px;
+}
+
+button.btn-submit { background-color: var(--success); color: white; border: none; cursor: pointer; font-weight: bold; }
+button.btn-submit:hover { background-color: #219150; }
+.btn-filter { background-color: var(--info); color: white; border: none; cursor: pointer; font-weight: bold; }
+.btn-clear { background-color: #7f8c8d; color: white; border: none; cursor: pointer; font-weight: bold; }
+
+.filter-box .grid-form > .form-group.full-width { display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 480px) {
+    .filter-box .grid-form > .form-group.full-width { flex-direction: row; }
+}
+
+/* ---------- Tabelas: cabeçalho e linhas em formato tradicional (horizontal).
+   Em telas estreitas, a tabela rola lateralmente dentro do contêiner. ---------- */
+.table-responsive {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; font-size: 13px; vertical-align: middle; white-space: nowrap; }
+th { background-color: var(--primary); color: white; position: sticky; top: 0; }
+tr:hover { background-color: #f8f9fa; }
+
+.tipo-entrada { color: var(--success); font-weight: bold; }
+.tipo-saida { color: var(--danger); font-weight: bold; }
+.btn-delete { background-color: var(--danger); padding: 8px 12px; font-size: 12px; color: white; border: none; cursor: pointer; border-radius: 4px; min-height: 36px; width: auto; }
+.estoque-baixo { color: var(--danger); font-weight: bold; }
+.estoque-ok { color: var(--success); font-weight: bold; }
+.hidden { display: none; }
+
+.var-subiu { color: #c0392b; font-weight: bold; background-color: #fadbd8; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.var-descuiu { color: var(--success); font-weight: bold; background-color: #d4efdf; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.var-neutro { color: #7f8c8d; font-size: 11px; }
+
+.kpi-card { padding: 10px 12px; border-radius: 6px; margin-bottom: 10px; color: white; }
+.kpi-card.kpi-entrada { background-color: var(--success); }
+.kpi-card.kpi-saida { background-color: var(--danger); }
+.kpi-card.kpi-saldo { background-color: var(--primary); }
+.kpi-title { font-size: 11px; font-weight: bold; text-transform: uppercase; }
+.kpi-value { font-size: 18px; font-weight: bold; margin: 3px 0; }
+.kpi-sub { font-size: 11px; opacity: 0.85; }
+
+#global-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 99999999;
+    width: min(230px, 90vw);
+    background-color: #1e293b;
+    color: #fff;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+    font-size: 11px;
+    pointer-events: none;
+}
+.tooltip-title { font-weight: bold; color: #38bdf8; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 3px; }
+.tooltip-item { padding: 4px 0; border-bottom: 1px dotted #334155; }
+.tooltip-container { display: inline-block; cursor: pointer; border-bottom: 1px dashed var(--info); }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}
